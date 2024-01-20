@@ -1,4 +1,21 @@
-
+#------------------------------------------------------------------
+# ffmpeg - audio / video converer
+#------------------------------------------------------------------
 #snippet to convert an audio file format using the ffmpeg package
 
 ffmpeg -i infile.wav outfile.mp3 -b 320
+
+
+#--------------------------------------------------------------------
+# xrandr - primitive command line interface to RandR extension
+#--------------------------------------------------------------------
+#snippet to mirror an external monitor to the standart output monitor
+
+xrandr --output HDMI-1 --output eDP-1  --same-as HDMI-1
+
+# to set output resolution
+xrandr --output HDMI-1 --mode 1366x768
+
+# to set brightness details
+xrandr --output HDMI-1 --gamma 1.0:1.0:1.0 --brightness 0.5
+~                                                                    
