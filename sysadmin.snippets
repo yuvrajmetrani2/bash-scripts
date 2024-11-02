@@ -28,3 +28,101 @@ ip address
 OR
 ip a
 #-----------------
+#-----------------
+To determine hostname of the system
+##
+hostname
+#-----------------
+
+Network Manager
+
+The NetworkManager is used to manage network settings of the system.
+
+the configuration files for network management are stored at 
+/etc/NetworkManager/system-connections/
+
+to create and edit configurations from the command line, we can use the nmcli utility.
+
+#------------------------
+#To check the status of the network devices
+#------------------------
+
+nmcli dev status
+
+#---------------------
+#To display a list of all connections, 
+
+nmcli con show
+
+#To display all parameters of an available connection eth0,
+
+nmcli con show eth0
+
+#To set static IP address, modify the ipv4.addresses parameter of the eth0 ethernet connection
+
+##
+nmcli con mod eth0 ipvr.addresses <ip/cidr>
+
+#The ipv4.method of the connection is set to auto by default. To be able to assign a static IP address, you need to modify the parameter to make it "manual" as follows
+#
+nmcli con mod eth0 ipvr.method manual
+
+# To reflect the change, you need to reload the connection 
+#
+nmcli con reload
+nmcli con up eth0
+
+## To check the updated change
+cat /etc/NetworkManager/system-connections/eth0.nmconnection
+
+
+## The  file can also be used to update various other network parameters.
+
+# on any change,remember to reload and "up" the connection
+#
+nmcli con reload
+nmcli con up eth0
+ip address
+
+
+# To whos status of all network interfaces
+nmcli dev status
+
+# To list all connection profiles
+nmcli con show
+
+# Show current settings for a connection
+nmcli con show <name>
+
+#creating a connection 
+nmcli con add con-name <name>
+
+#modifying a connection
+nmcli con mod name
+
+#Disconnect the interface and/or current connection
+nmcli dev dis dev
+
+# Delete the specified connection
+nmcli con del <name>
+#
+#------------------
+#Hostname
+#-----------------
+# Two methods to manage hostname
+# 1. hostnamectl
+hostnamectl hostname <set-hostname>
+
+# 2. nmcli
+# to set hostname
+nmcli general hostname <set-hostname>
+# to verify hostname
+# 1
+nmcli general hostname
+# 2
+hostname
+# 3
+cat /etc/hostname
+# 4
+hostnamectl status
+
