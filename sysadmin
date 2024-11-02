@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#-----------------
+#creating a user
+#-----------------
+
+adduser <username>
+
+# set a password to the user
+passwd <username>
+
+-------------------
