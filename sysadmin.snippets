@@ -126,3 +126,23 @@ cat /etc/hostname
 # 4
 hostnamectl status
 
+
+#-----------------------
+
+Name Resolution
+#--------------------
+#
+The /etc/hosts file is the temporary / local name resolution file.
+
+To map hostname make an entry on the host in the temporary hostname resolution file
+<ip> <hostname>
+
+To verify - 
+ping <hostname>
+
+The ping should work by translating the hostname to IP address.
+
+#----------------------
+#
+
+
