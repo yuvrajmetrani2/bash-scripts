@@ -143,6 +143,93 @@ ping <hostname>
 The ping should work by translating the hostname to IP address.
 
 #----------------------
+# Managing Users and Groups
+# -----------------------
 #
+A user is an entity that requires permissions to do tasks on the system.
+User Types
+- Root user
+- System users
+- Regular users
+
+# Users are listed in 
+cat /etc/passwd
+
+# to understand the passwd file
+man 5 passwd
+
+# to switch to another user
+
+su - <anotheruser>
+
+# to create a user account
+useradd <username>
+
+options
+-g  -> to provide primary group id
+-u  -> user id
+-c  -> comment (to describe user)
+-d  -> to provide home directory of user
+-s  -> login shell (The first process to start when user logs in)
+
+useradd [options] <username>
+
+
+# To modify existing users
+#
+usermod
+# modify user's login
+usermod -l "newlogin-Name" <username>
+
+# verify by 
+cat /etc/passwd | grep <newlogin-Name>
+
+#  Deleting user accounts
+
+userdel [options] <username>
+
+# option
+userdel -r <username>
+
+-r -> removes all data related to user
+
+# Setting password
+passwd <username>
+
+# To check passwor parameters for a user
+
+chage -l <username>
+
+# To change password parameters for a user
+chage <username>
+
+#To display comprehensive user and password information
+lslogins
+
+# To Lock user account
+1.
+usermod -L <username>  # password in the shadow file will be preceded with a single exclamation mark. 
+
+2.
+passwd -l <username>  # password in the shadow file will be preceded with TWO exclamation marks.
+
+# Managing Groups
+#----------------
+
+# to check groups of a user
+1. 
+groups <username>
+2.
+id <username>
+
+# To create a group
+#
+groupadd [options] <groupname>
+
+# View existing groups
+cat /etc/group
+
+
+
 
 
