@@ -229,7 +229,118 @@ groupadd [options] <groupname>
 # View existing groups
 cat /etc/group
 
+# Adding existing users to group(s)
+usermod -aG [groupname(,s)] <username>
 
 
+# To remove from a supplementary group(s)
+#  gpasswd
 
+# modify group parameters
+# groupmod
+
+
+# To delete a group
+groupdel <groupname>
+
+#-------------------------------------------
+#Permissions
+#------------------------------------------
+
+#creating / adding content to  files 
+
+touch <filename>
+cat > <filename>
+echo "content" >> <filename>
+vi <filename>
+
+#creating directory
+mkdir <dirname>
+
+#deleting file
+rm <filename>
+
+#deleting empty dirrectory
+rmdir <dirname>
+
+#deleting non-empty directory
+rm -r <dirname>
+
+# Checking permissions of a directory/file
+ls -ld <dirpath>
+ls -l <filepath>
+
+first column after the first character shows the permissions of the file/dir
+
+r - read permission	- 4
+w - write permission	- 2
+x - execute permission	- 1
+- - no permission	- 0 
+
+rwxrwxrwx - permission triplet - (rwx) for user, group and others
+
+permissions (symbolic or absolute/octal)
+
+# to change a file permission
+chmod <permission> <filename>
+
+chmod 755 <filename>	# absolute permission
+chmod g=rx,o-rx	<filen>	# symbolic permission
+chmod o-r <filename> 	# to restrict others from reading
+chmod o+r <filename>	# to permit others to read
+
+# Changing ownership
+
+chown <user>:<group> <path>	# Change user And group of a path
+chown <user> <path>		# Change user of a path
+chown :<group> <path>		# Change group of a path
+chgrp <group> <path>		# Change group of a path
+
+# Special Permission
+# SUID	# [ Set Owner User ID ]
+#
+# First find the command of the  task that you want to take effect on 
+which <command>
+#eg. 
+#If you want to allow others to  change passwords, the command is passwd
+
+# by which <command> we get the path of the command file
+ls -l <Executable-Path> # to verify permissions
+
+# to apply permissions
+chmod o+s <Executable-Path>
+
+# When SUID bit is applied, users can execute the file like an owner.
+# If the SUID bit is removed, other users cannot execute the file.
+# SUID is set on executables, when it has to be run as owner, but credentials of owner is not to be shared. It cannot be set on shell scripts. 
+# NOTE: When SUID is removed, others will not be able to execute the file, event if Others have execute permissions
+#
+#To remove permission
+chmod g-s <executable-path>
+
+# Sticky bit applied on a directory
+# Used when files can have full permissions for everyone, but no one except the OWNER can delete the file in a directory
+# # If the sticky bit is not applied, anyone who has rwx permission can delete a file within a directory, but with sticky bit applied, anyone who has rwx permission CANNOT delete a file, except the Owner.
+# NOTE - Sticky bit is applied only on a directory, and works on contents of the directory.
+
+# First give full permission to everyone
+chmod 777 <dir>
+# To apply sticky bit
+chmod o+t <dir>
+
+
+# Access Control Lists
+#
+# Usecase : To ensure that a directory is owned by root a user  while giving permission of OLD and NEW content in the directory to a user
+# ACL - is used to specify permission to individual users  for a file or directory
+setfacl -m u:<username>:<sym-permission> <dir/file>
+setfacl -m g:<grupname>:<sym-permission> <dir/file>
+
+# Options
+-R - recursively apply ACLs on directory and existing contents
+-d - recursively apply ALSs on directory and NEW contents
+-m - to modify the ACLs
+
+# To see existing ACLs
+getfacl <path>
 
