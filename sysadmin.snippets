@@ -412,3 +412,410 @@ kill -[signal] process-id
 
 #eg.
 kill -SIGTERM %1
+
+
+
+-----------------------------------------------------------------------------------------
+STORAGE DEVICE MANAGEMENT
+-----------------------------------------------------------------------------------------
+#----------------------------
+# Storage Device Management
+#----------------------------
+
+
+
+# -----------------------------
+# 1. Check available disk space
+
+# to check disk usage of files 
+du -h /
+du -h <path>
+
+
+
+# -----------------------------
+# 2. What is a Partition
+Logical separation of the storage between system files and various user files.
+
+To isolate storage between various users/orgs
+
+To create separate storage between various parties.
+
+Primary disk - one on which the OS is installed.  - primarily named as /dev/sda
+Secondary disk - for user data - named as /dev/sdb, /dev/sdc ...
+
+# -----------------------------
+# 3. Selecting a partition scheme
+
+2 partitioning schemes - MBR - GPT
+
+MBR - 
+Legacy, for BIOS systems
+ - supports upto 4 primary partitions, 32bit partition table of upto 2TB size
+ - simple, widely compatible, but lacks flexibility, scalability
+
+GPT -
+Modern, for UEFI systems
+ - supports 128 flexible partitions, offering granular control
+ - 64 bit partition table, supports upto 8 ZiB (8 Billion TB) size in theory.
+ - Enhanced features, fault tolerance, data redundancy, data integrity
+
+# To indicate the type of partitioning scheme to use
+
+parted /dev/sdb print
+
+print - shows the type of scheme.
+
+# -----------------------------
+# 4. Creating a partition
+
+to initiate the partition creation, use the parted command
+
+parted <diskname>
+
+eg. 
+parted /dev/sdb
+
+# A list of subcommands  can be used with parted, that will be shown.
+
+
+# To get help abou a particular sub commnd like mkpart, use the parted command in the below manner.
+
+# parted /dev/sdb help mkpart
+
+# In the (parted) prompt, use the mkpart to create a new partition of a predecided size. 
+
+give, 
+partition anme
+file system type (xfs, ext4...)
+# start and end points: use secotrs, percentages or bytes (KB, MB, GB,KiB, MiB, GiB)
+
+eg. 
+(parted) mkpart <name> 2048s 20GB
+
+
+# To check the details
+
+(parted) print
+
+#Similarly, 
+#create a new partition of a predecided size, using mkpart command and print the details
+
+parted
+(parted) mkpart
+#... and follow the prompts in the interactive subcommands
+
+# To come out of the interactive mode, 
+# execute "q" quit subcommand
+
+# To Delete a partition created in parted prompt, 
+(parted) rm <partitionname>
+
+# To commit the partition, 
+
+udevadm settle
+
+#This above command ensures that the system recognized the newly added hardware devices.
+The prompt returns when the task is done
+
+# To view the information about all the storage disks in bytes, 
+
+parted -l
+
+
+# -----------------------------
+# 5.  File system - Introduction
+
+# File systems - remember location of dsik, manage free space, track every byte on storage device. 
+# formatting partitions with a file sysem creates a structured data organization system.
+# a file system can alsow help to recover files if they are lost.
+
+
+# -----------------------------
+# 6.  Create a File system on first partition
+
+# to create a file system on the first partition, 
+mkfs.ext4 /dev/sdb1
+
+eg. 
+mkfs.<filesystem> <partition>
+
+
+# -----------------------------
+# 7. Create a file system on second partition
+
+# to create another file system on another partition 
+mkfs.xfs /dev/sdb2
+
+eg. 
+mkfs.<filesystem> <partition>
+
+# To verify the file systems, 
+
+blkid [<partition>]
+
+eg. 
+blkid /dev/sdb1 /dev/sdb2
+
+# ALTERNATIVELY, 
+# to see information on all partitions on the device /dev/sdb
+
+lsblk --fs /dev/sdb
+
+# -----------------------------
+# 8. Mounting a volume  - Concept
+
+The file systems, in order to be used by the system, need to be connected to the root file system of the OS. 
+
+This connection is done by means of a mountpoint - or a connection point on the root file system, that allows the access to the new FS.
+
+The mounting can be temporary or permanent. 
+
+
+# ------------------------------------------
+# 9. Mounting a volume on the root file system - Temporary
+
+# first create a directory in the root file system. This will serve as the connectionpoint, a.k.a., the mount point. 
+
+mkdir /<mountpointname>
+
+# Temporary mounting
+
+mount /dev/sdb1 /<mountpointname>
+
+
+# To verify, use the mount command. The mount command can be used to mount the partition, or list the mount points. 
+
+mount | grep <mountpointname>
+
+
+# Also, to list all mounted file systems or search for a FS,
+findmnt | grep /<mountpointname>
+
+
+# To unmount the temporarily mounted partition, 
+
+umount <partition name>
+# OR
+umount /<mountpointname>
+
+# -----------------------------
+# 10. Mounting a volume on the root file system - Persistent
+
+# an entry needs to be made in the /etc/fstab file to enable permanent mounting.
+# this file is space delimited with 6 fields per line
+
+# 1. Device - the physical device or partition (eg. /dev/sdb2 OR UUID)
+# 2. Mount point - Directory within the the root file system
+# 3. FS type - eg. ext4, xfs ...
+# 4. Mount options - comma separated options (commonly we use default options)
+# 5. Dump  - Whether the device should be backed up using the dump utility (usually set to 0 for non-essential partitions)
+# 6. fsck - order and behaviour of the FS checks during boot (usually set to 0 for non-critical partitions)
+
+# vi /etc/fstab
+
+# make an entry resembling the below
+
+/dev/sdb2 /<mountpointname> xfs defaults 0 0
+
+# NOTE  - the the OS is booting, the /etc/fstab file is read. In case there is an incorrect entry, the machine might not be bootable anymore. Hence, double check the file entry.
+
+
+# NOTE - Once the entry is made, save the file. In case of any change, it is crucial to update the system daemon to ensure it recognizes and loads the new configuration. 
+
+# To update the system daemon to recognize the new configuration, either reboot the machine, OR run
+systemctl daemon-reload
+
+# To re-read the file system table and mount the file system, 
+mount -a
+
+# to verify the mount points, 
+
+mount | grep /<mountpointname>
+# OR
+findmnt | grep /<mountpointname>
+
+# To view the details of the mounted file systems, 
+df -hT
+
+
+where, the option
+-T prints the fle system type
+-h prints the size in user-friendly form
+
+#----------------------------
+# 11. Logical Volume Management
+#----------------------------
+
+# To identify storage space on the file system, 
+df -h
+
+# To check whether any space is available on the /dev/sdb storage 
+parted -l
+
+# Logical Volume Management (LVM) can manage storage for linux systems with greater flexibility in managing and resizing storage. 
+
+# Building blocks of LVM
+# Physical devices - The devices should be initialized as LVM physical volume.
+
+# Physical Volumes (PVs) - LVM uses the the device, by breaking down the physical volumes into small chunks called Physical Extents (PEs) -> the smallest building blocks of storage withing a physical volume.
+
+# Volume Groups (VGs) - Storage pools that are made by combining one or more PVs. It is the functional equivalent of a hard disk.
+# They are one large storage built from multiple physical devices.
+
+# Logical Volumes (LVs) - created from free physical extents in a VG. LVs are a collection of Logical Extents, which map to physical extents. 
+By default, each LE, gets mapped to one PE. 
+
+# Creating LVM storage requirs building structures in a logical workflow as below. 
+
+#1 - Create physical volumes by determining and initializing one or more physical devices. 
+#2 - combine multiple physical volumes to create a volume group
+#3 - Use the available space in the volume group to create the logical volumes. 
+#4 - Format the logical volume using a file system.
+#5 - Mount the formatted logical volume.
+
+#----------------------------
+# 12. Creating a logical volume
+
+# first we backup the data on the physical volumes from the mount points.
+# Befoe we add the partitions into  a volume group, they need to be converted into a physical volume. 
+
+
+
+#----------------------------
+# 13. Taking a  backup of a file system
+
+
+# Once the backup is complete, unmount the File system. verify that the entry for the /<mountpointname> is no longer displayed in the result of the df -h command. 
+
+# Create partition on /dev/sdc 
+
+#As there is no partition table for the partition table yet, add one by using the mklabel command. 
+
+#Then use the mkpart to add the new partition. 
+
+# The entire hard disk /dev/sdc can be utilized to that we can reserve the additional space available for future use.
+
+parted /dev/sdc
+
+
+#----------------------------
+# 14. Creating a physical volume
+
+# The /dev/sdb1 and /dev/sdc1 partitions can be converted into physical volumes using
+pvcreate /dev/sdb1
+pvcreate /dev/sdc1
+
+
+# You can observe, during the PV creation, the ext4 FS is wiped off. However, due to the backup, the data is safe.
+
+# To verify, 
+pvdisplay /dev/sdb1
+
+# NOTE: pvs can also be used to display the information on physical volumes.
+pvs
+
+
+# -----------------------------
+# 15. Creating a volume group
+
+# Combining 2 PVs and creating a VG (Volume Group)
+vgcreate <VGname> /<PV1> /<PV2> .... /<PVn>
+
+# By default, the PE will be 4MB. A VG consists of several PEs. 
+# -s - To change the default physical extent size. The physical extent size is represented in multiples of 2. 
+# -p - To provide the maximum number of PV that can be contained in a VG. 
+# -l - Maximum number of LV that can be created from the VG. 
+
+# The properties of the VG can be viewed using
+vgdisplay <VGname>
+
+# The volume group can be extended by adding more physical volumes using
+vgextend <VGname> <PV1> <PV2> ...<PVn>
+
+# Some commands to explore
+vgcreate
+vgdisplay
+vgextend
+
+# -----------------------------
+# 17. Creating Logical volume
+
+# Once the VG is created, it can be divided into Logical Volumes (LV)
+# A Logical volume can be created using
+
+lvcreate -n <LVname> -L <total required size in GB> <VGName>
+
+# Some options are
+
+-n - name of the logical volume
+-L - size in bytes
+-l - size in number of extents
+
+# The logical volume can be referred using the name format
+/dev/<VGname>/<LVname>
+OR
+/dev/mapper/<VGname-LVname>
+
+# The properties of the LV can be viewed by using
+lvdisplay /dev/VGname/LVname
+
+# To format and mount the Logical Volume
+mkfs.ext4 /dev/VGname/LVname
+
+# make the entry in the /etc/fstab file
+/dev/VGname/LVname /<mountpoint> FStype defaults 0 0
+
+# To ensure that it is recognized, either reboot the machine or 
+systemctl daemon-reload
+mount -a
+
+# verify the mount 
+df -h
+
+# finally, recover the data backup.
+
+
+# -----------------------------
+# 18. Resizing logical volumes
+
+# If a VG does not have sufficient space, we can convert a new storage deice or partition into a PV and extend the VG by adding the new PV of required size. 
+
+# To resize a LV
+
+# lvextend - expand the storage in the logical volume
+# lvreduce - reduce the storage in the logical volume
+# lvresize - expand or reduce the storage in the logical volume
+
+lvextend -L +2G /dev/VGname/LVname
+
+-L  - provide size in byyes. 
+ +  - to indicate the value should be added to the existing size. 
+
+
+# Hoever, this is not enough to reflect the desired size. 
+
+# We need to resize the FileSystem on it.
+
+# To verify 
+df -h
+
+
+# -----------------------------
+# 19. Extend an ext4 file system to logical volume size
+
+
+# To expand a FileSystem to occupy the new extended logical volume, 
+
+resize2fs /dev/<VGname>/<LVname>
+
+# Now verify the size again
+df -h
+
+# to expand the xfs file system to occupy the new extended logical volume, 
+xfs_growfs
+
+# NOTE: The ext4 file system can be resized up or down.
+# NOTE: The xfs  file system can be resized only UP
+
+
