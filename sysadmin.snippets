@@ -344,3 +344,71 @@ setfacl -m g:<grupname>:<sym-permission> <dir/file>
 # To see existing ACLs
 getfacl <path>
 
+
+#------------------------------
+#Processes
+#------------------------------
+
+# Process is a program in execution. 
+# To list processes snapshot
+ps
+
+# To list details of processes
+ps aux
+
+a -> running processes from ALL users
+u -> show user column
+x -> processes not executed in terminal
+
+# To display realtime overview of processes
+top
+
+# State of processes in the top command
+R - Running / S - Sleeping / T - Stopped / Z - Zombie / Terminated
+
+# Priority - PR - a process with higher priority number get more CPU time
+#
+# Nice - NI - value used to calculate priority of a process
+# RES - physical memory used by the process
+# SHR - share memory of the process
+# %MEM - RAM percentage used by process
+# VIRT - virtual memory used by process
+# TIME+ total time of activity
+
+# To alter the nice value of a process
+renice <priority> <processid>
+# Nice values range  -> -20 to 19
+# Lower integer nice value corresponds to higher priority.
+# ONLY root user can modify priority of process
+
+#------------------------
+#JOBS
+#------------------------
+# Each command on a shell has an associated job. 
+#
+# JOB - <TODO>
+
+# To see a list of Jobs
+jobs
+
+# Foregrond PRocess - requires inputs from user, controlled by user.
+# Background Process - non-interactive process, does not require human input.
+#
+# Executing process in background
+ <command> &
+
+# Moving background process to foreground
+fg %job-id
+
+# Moving foreground process to background
+bg %job-id
+
+# Killing a process
+kill -l  # To list names and numbers of all available signals 
+
+# To execute the kill command
+kill -[signal] %job-id
+kill -[signal] process-id
+
+#eg.
+kill -SIGTERM %1
