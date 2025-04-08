@@ -1,6 +1,9 @@
 -------------------------------
 sed A.K.A - stream editor
 -------------------------------
+
+Functionalities/features, high level 
+
 1. s - SubstitutingText
 2. d - Deleting Text
 3. i - Inserting new line of text before specified line
